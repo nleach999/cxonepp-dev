@@ -67,7 +67,7 @@ runs:
 
     
     - name: Show Versions
-      if: inputs.show-versions == true
+      if: inputs.show-versions
       shell: bash
       run: |
         docker run -t --rm ${{ inputs.container-image}} -h
