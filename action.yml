@@ -70,8 +70,8 @@ runs:
       if: inputs.show-versions
       shell: bash
       run: |
-        docker run -t --rm ${{ inputs.container-image}} -h
-        docker run -t --rm ${{ inputs.container-image}} cxone -h
+        echo SCA Resolver version: $(docker run -t --rm ${{ inputs.container-image}} version)
+        # docker run -t --rm ${{ inputs.container-image}} cxone -h
 
 
 
