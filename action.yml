@@ -60,7 +60,10 @@ runs:
 
     - name: foo
       shell: bash
-      run: echo hello world
+      run: |
+        echo hello world
+        set
+        
     
     - name: Show Versions
       if: inputs.show-versions == true
