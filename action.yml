@@ -71,7 +71,7 @@ runs:
       shell: bash
       run: |
         docker run -t --rm ${{ inputs.container-image}} --version | cat -v | sed -E 's/.*(CxSCA Resolver.[0-9.]+)\^M$/\1/g'
-        docker run -t --rm ${{ inputs.container-image}} cxone version
+        echo CxOne CLI $(docker run -t --rm ${{ inputs.container-image}} cxone version)
 
 
 
