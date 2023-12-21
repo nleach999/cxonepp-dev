@@ -62,8 +62,9 @@ runs:
       shell: bash
       run: |
         echo hello world
-        set
-        
+        echo show-versions: ${{ inputs.show-versions }}
+        echo container-image: ${{ inputs.container-image}}
+
     
     - name: Show Versions
       if: inputs.show-versions == true
