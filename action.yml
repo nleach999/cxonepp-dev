@@ -63,7 +63,7 @@ inputs:
     default: 'docker run'
     description: The command used to execute the container.
   container-run-command-params:
-    default: "-t --rm -v $(pwd):/sandbox/input -v ../output:/sandbox/output"
+    default: "-t --rm -v $(pwd):/sandbox/input -v $(pwd)/../output:/sandbox/output"
     description: The command used to execute the container.
 
 
