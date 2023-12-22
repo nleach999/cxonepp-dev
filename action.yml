@@ -87,9 +87,8 @@ runs:
         echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format summaryJSON" >> "$GITHUB_ENV"
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
         mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
+        chmod go+w $(realpath ${GITHUB_WORKSPACE}/../output)
         ls -l ..
-        whoami
-        getent group $(whoami)
 
     - name: Container Registry Login
       uses: docker/login-action@v2
