@@ -73,7 +73,7 @@ runs:
 
     - name: Pull Container
       shell: bash
-      run: ${{ env.DOCKER_RUN }} pull ${{ inputs.container-image}}
+      run: docker pull ${{ inputs.container-image}} > /dev/null
     
     - name: Show Versions
       if: ${{ inputs.show-versions == 'true' }}
