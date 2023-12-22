@@ -32,9 +32,6 @@ inputs:
   cx-cli-debug:
     default: false
     description: Turn on debugging for the CxOne CLI
-  cx-cli-retry-delay:
-    default: 30
-    description: The polling delay in seconds
   cx-cli-agent:
     default: 'cxonepp-gh-action'
     description: The agent name to use when performing CxOne CLI commands
@@ -78,8 +75,8 @@ runs:
       run: |
         [ "${{ inputs.cx-cli-debug }}" == "true" ] && CXONECLI_DEBUG_FLAG='--debug' || :
         echo "DOCKER_RUN=${{ inputs.container-run-command }} ${{ inputs.container-run-command-params }}" >> "$GITHUB_ENV"
-        echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }} --retry-delay ${{ inputs.cx-cli-retry-delay }}" >> "$GITHUB_ENV"
-        echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox" >> "$GITHUB_ENV"
+        echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
+        echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format sarif" >> "$GITHUB_ENV"
         mkdir ../output
 
     - name: Container Registry Login
