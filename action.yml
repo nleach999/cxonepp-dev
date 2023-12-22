@@ -73,6 +73,14 @@ runs:
   using: 'composite'
   steps:
 
+    - name: check
+      shell: bash
+      run: |
+      pwd
+      ls -la
+      set
+      
+
     - name: Setup working environment
       shell: bash
       run: |
