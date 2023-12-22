@@ -105,13 +105,12 @@ runs:
     - name: Validate
       shell: bash
       run: |
+        getent passwd $(whoami)
+        getend group $(whoami)
         ${{ env.DOCKER_RUN }} --entrypoint=pwd ${{ inputs.container-image}}
         ${{ env.DOCKER_RUN }} --entrypoint=ls ${{ inputs.container-image}} -l /sandbox
         ${{ env.DOCKER_RUN }} --entrypoint=whoami ${{ inputs.container-image}}
         ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami) ; getent group $(whoami)'
-        getent group 127
-        getent group 123
-        getent passwd 1001
 
 
 
