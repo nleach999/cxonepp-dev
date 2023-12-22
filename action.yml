@@ -63,10 +63,13 @@ runs:
       run: |
         echo "DOCKER_RUN=${{ inputs.container-run-command }} ${{ inputs.container-run-command-params }}" >> "$GITHUB_ENV"
 
-    - name: Check Env
-      shell: bash
-      run: |
-        echo DOCKER_RUN: ${{ env.DOCKER_RUN }}
+    - name: Container Registry Login
+      uses: docker/login-action@v2
+      if: inputs.docker-login-username != '' && inputs.docker-login-password != ''
+      with:
+        registry: ${{ inputs.docker-login-registry }}
+        username: ${{ inputs.docker-login-username }}
+        password: ${{ inputs.docker-login-password }}
 
     
     - name: Show Versions
