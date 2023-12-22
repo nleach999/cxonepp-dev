@@ -86,7 +86,7 @@ runs:
         echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
         echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format summaryJSON" >> "$GITHUB_ENV"
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
-        mkdir ${{ env.CXONE_OUTPATH }}
+        mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
 
     - name: Container Registry Login
       uses: docker/login-action@v2
