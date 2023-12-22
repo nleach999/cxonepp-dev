@@ -71,6 +71,9 @@ runs:
         username: ${{ inputs.docker-login-username }}
         password: ${{ inputs.docker-login-password }}
 
+    - name: Pull Container
+      shell: bash
+      run: ${{ env.DOCKER_RUN }} pull ${{ inputs.container-image}}
     
     - name: Show Versions
       if: ${{ inputs.show-versions == 'true' }}
