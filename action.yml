@@ -36,7 +36,7 @@ inputs:
     default: 30
     description: The polling delay in seconds
   cx-cli-agent:
-    default: 'cxonepp-action'
+    default: 'cxonepp-gh-action'
     description: The agent name to use when performing CxOne CLI commands
 
   container-image:
