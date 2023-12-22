@@ -65,6 +65,14 @@ inputs:
     default: "-t --rm -v ${GITHUB_WORKSPACE}:/sandbox/input -v $(realpath ${GITHUB_WORKSPACE}/../output):/sandbox/output"
     description: The command used to execute the container.
 
+outputs:
+  scan-id:
+    description: The ID of the scan executed
+    value: ${{ steps.identifiers.outputs.scan-id}}
+
+  project-id:
+    description: The ID of the project where the scan was executed
+    value: ${{ steps.get-identifiers.outputs.project-id}}
 
 runs:
   using: 'composite'
@@ -76,7 +84,7 @@ runs:
         [ "${{ inputs.cx-cli-debug }}" == "true" ] && CXONECLI_DEBUG_FLAG='--debug' || :
         echo "DOCKER_RUN=${{ inputs.container-run-command }} ${{ inputs.container-run-command-params }}" >> "$GITHUB_ENV"
         echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
-        echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format sarif" >> "$GITHUB_ENV"
+        echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format summaryJSON" >> "$GITHUB_ENV"
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
         mkdir ${{ env.CXONE_OUTPATH }}
 
@@ -103,6 +111,12 @@ runs:
       shell: bash
       run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
+    - name: Collect Output Identifiers
+      id: get-identifiers
+      shell: bash
+      run: |
+        echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
+        echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
 
 
 
