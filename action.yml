@@ -4,8 +4,13 @@ author: 'Nathan Leach, Principal Solutions Architect, Checkmarx'
 
 inputs:
   base-uri:
-    required: true
+    required: false
+    default: https://ast.checkmarx.net
     description: 'Provide the CxOne portal URL'
+  base-auth-uri:
+    required: false
+    default: https://iam.checkmarx.net
+    description: 'Provide the CxOne base auth url'
   cx-tenant:
     required: true
     description: 'Provide the Tenant for CxOne portal URL'
@@ -71,7 +76,7 @@ runs:
       run: |
         [ ${{ inputs.cx-cli-debug }} == 'true' ] && CXONECLI_DEBUG_FLAG='--debug' || :
         echo "DOCKER_RUN=${{ inputs.container-run-command }} ${{ inputs.container-run-command-params }}" >> "$GITHUB_ENV"
-        echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent ${{ inputs.cx-cli-agent }} --client-id ${{ inputs.cx-client-id }} --client-secret ${{ inputs.cx-client-secret }} --tenant ${{ inputs.cx-tenant }} --base-uri ${{ inputs.base-uri }}" >> "$GITHUB_ENV"
+        echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent ${{ inputs.cx-cli-agent }} --client-id ${{ inputs.cx-client-id }} --client-secret ${{ inputs.cx-client-secret }} --tenant ${{ inputs.cx-tenant }} --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
         echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name ${{ inputs.project-name }} -s . --branch ${{ github.ref_name }} --sca-resolver /sandbox/resolver/ScaResolver" >> "$GITHUB_ENV"
 
     - name: Container Registry Login
