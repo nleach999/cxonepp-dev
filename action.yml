@@ -111,7 +111,7 @@ runs:
         ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami) ; getent group $(whoami)'
         getent group 127
         getent passwd 1001
-        
+
 
 
     - name: Show Versions
@@ -121,17 +121,17 @@ runs:
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} --version | cat -v | sed -E 's/.*(CxSCA Resolver.[0-9.]+)\^M$/\1/g'
         echo CxOne CLI $(${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone version)
 
-    - name: Execute Scan
-      shell: bash
-      run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+    # - name: Execute Scan
+    #   shell: bash
+    #   run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
-    - name: Collect Output Identifiers
-      id: get-identifiers
-      shell: bash
-      run: |
-        ls -l ${{ env.CXONE_OUTPATH }}
-        echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
-        echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
+    # - name: Collect Output Identifiers
+    #   id: get-identifiers
+    #   shell: bash
+    #   run: |
+    #     ls -l ${{ env.CXONE_OUTPATH }}
+    #     echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
+    #     echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
 
 
 
