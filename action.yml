@@ -93,6 +93,10 @@ runs:
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} --version | cat -v | sed -E 's/.*(CxSCA Resolver.[0-9.]+)\^M$/\1/g'
         echo CxOne CLI $(${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone version)
 
+    - name: Execute Scan
+      shell: bash
+      run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_GLOBAL_PARAMS }} ${{ env.CXONE_CLI_SCAN_PARAMS }}
+
 
 
 
