@@ -109,6 +109,9 @@ runs:
         ${{ env.DOCKER_RUN }} --entrypoint=ls ${{ inputs.container-image}} -l /sandbox
         ${{ env.DOCKER_RUN }} --entrypoint=whoami ${{ inputs.container-image}}
         ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami) ; getent group $(whoami)'
+        getent group 127
+        getent passwd 1001
+        
 
 
     - name: Show Versions
