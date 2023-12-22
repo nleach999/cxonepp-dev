@@ -89,7 +89,7 @@ runs:
         mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
         ls -l
         whoami
-        getent groups $(whoami)
+        getent group $(whoami)
 
     - name: Container Registry Login
       uses: docker/login-action@v2
