@@ -87,7 +87,7 @@ runs:
         echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format summaryJSON" >> "$GITHUB_ENV"
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
         mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
-        chmod g+w $(realpath ${GITHUB_WORKSPACE}/../output)
+        chmod go+w $(realpath ${GITHUB_WORKSPACE}/../output)
         ls -l ..
 
     - name: Container Registry Login
@@ -101,7 +101,16 @@ runs:
     - name: Pull Container
       shell: bash
       run: docker pull ${{ inputs.container-image}} > /dev/null
-    
+
+    - name: Validate
+      shell: bash
+      run: |
+        ${{ env.DOCKER_RUN }} --entrypoint=pwd ${{ inputs.container-image}}
+        ${{ env.DOCKER_RUN }} --entrypoint=ls ${{ inputs.container-image}} -l /sandbox
+        ${{ env.DOCKER_RUN }} --entrypoint=whoami ${{ inputs.container-image}}
+        ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami) ; getent group $(whoami)'
+
+
     - name: Show Versions
       if: ${{ inputs.show-versions == 'true' }}
       shell: bash
@@ -117,6 +126,7 @@ runs:
       id: get-identifiers
       shell: bash
       run: |
+        ls -l ${{ env.CXONE_OUTPATH }}
         echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
         echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
 
