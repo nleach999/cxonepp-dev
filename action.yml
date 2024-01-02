@@ -152,7 +152,7 @@ runs:
         ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/input/write'
         RESULT=$?
         echo returned code $RESULT
-        [ $RESULT -eq 0 ] && exit 1 || :
+        [ $RESULT -eq 1 ] && exit 1 || :
 
 
     - name: Execute Scan
