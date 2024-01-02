@@ -137,7 +137,7 @@ runs:
         getent passwd $(whoami)
         getent group $(whoami)
         ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -u'
-        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -g'
+        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -G'
         exit 1
 
 
