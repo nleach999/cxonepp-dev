@@ -56,6 +56,9 @@ inputs:
   attach-sarif-file:
     default: false
     description: If true, attaches the Sarif file to the workflow as an artifact. 
+  attach-sbom-file:
+    default: false
+    description: If true, attaches the SBOM file to the workflow as an artifact. 
 
   show-versions:
     default: true
@@ -127,10 +130,34 @@ runs:
         echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
 
     - name: PR Decorations
-      if: ${{ github.event_name == 'pull_request' && env.SCAN_ID != '' }}
+      if: ${{ (failure() || success()) && (github.event_name == 'pull_request' && env.SCAN_ID != '') }}
       shell: bash
       run: |
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+
+    # - name: Sarif Report Generation
+    #   if: ${{ env.SCAN_ID != '' && ( inputs.upload-sarif-file == 'true' || inputs.attach-sarif-file == 'true' ) }}
+    #   shell: bash
+    #   run: |
+    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+
+    # - name: SBOM Report Generation
+    #   if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
+    #   shell: bash
+    #   run: |
+    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+
+    # - name: Sarif Report Upload on Push
+    #   if: ${{ env.SCAN_ID != '' && github.event_name == 'push' && inputs.upload-sarif-file == 'true' }}
+    #   shell: bash
+    #   run: |
+    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+
+    # - name: Sarif Report Upload Attach as Artifact
+    #   if: ${{ env.SCAN_ID != '' && inputs.attach-sarif-file == 'true' }}
+    #   shell: bash
+    #   run: |
+    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
 
 
