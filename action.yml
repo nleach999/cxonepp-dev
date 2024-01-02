@@ -135,19 +135,25 @@ runs:
       if: ${{ inputs.cx-cli-debug == 'true' }}
       shell: bash
       run: |
+        echo IF GITHUB UID/GID DO NOT MATCH CONTAINER UID/GID, WRITING TO VOLUME MAPS MAY FAIL
+
         echo GITHUB USER UID: $(id -u)
+        echo CONTAINER USER UID: $(${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -u')
+
         echo GITHUB USER EFFECTIVE GROUPS: $(id -G)
-        echo IF UID/GID DO NOT MATCH CONTAINER UID/GID, WRITING TO VOLUME MAPS MAY FAIL
+        echo CONTAINER USER EFFECTIVE GROUPS: $(${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -G')
 
         echo TESTING WRITE CAPABILITY ON OUTPUT
         ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/output/write'
         [ -f "${{ env.CXONE_OUTPATH }}/write" ] && rm "${{ env.CXONE_OUTPATH }}/write" || exit 1
 
-        echo TESTING WRITE CAPAPABILITY ON INPUT
+        echo TESTING WRITE DENIED ON INPUT
         ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/output/read'
+        ls -l
+
 
         exit 15
-        
+
 
 
     - name: Execute Scan
