@@ -110,7 +110,7 @@ runs:
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
         echo "CXONE_CLI_REPORT_PARAMS=${{ inputs.additional-report-params }} --output-path /sandbox/output" >> "$GITHUB_ENV"
         mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
-        chmod go+w $(realpath ${GITHUB_WORKSPACE}/../output)
+        chmod g+w $(realpath ${GITHUB_WORKSPACE}/../output)
 
     - name: Container Registry Login
       uses: docker/login-action@v2
@@ -132,13 +132,22 @@ runs:
         echo CxOne CLI $(${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone version)
 
     - name: Container Validation
+      if: ${{ inputs.cx-cli-debug == 'true' }}
       shell: bash
       run: |
-        getent passwd $(whoami)
-        getent group $(whoami)
-        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -u'
-        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'id -G'
-        exit 1
+        echo GITHUB USER UID: $(id -u)
+        echo GITHUB USER EFFECTIVE GROUPS: $(id -G)
+        echo IF UID/GID DO NOT MATCH CONTAINER UID/GID, WRITING TO VOLUME MAPS MAY FAIL
+
+        echo TESTING WRITE CAPABILITY ON OUTPUT
+        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/output/write'
+        [ -f "${{ env.CXONE_OUTPATH }}/write" ] && rm "${{ env.CXONE_OUTPATH }}/write" || exit 1
+
+        echo TESTING WRITE CAPAPABILITY ON INPUT
+        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/output/read'
+
+        exit 15
+        
 
 
     - name: Execute Scan
