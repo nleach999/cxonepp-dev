@@ -180,7 +180,6 @@ runs:
       shell: bash
       run: |
           ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} --report-format SBOM --report-sbom-format ${{ inputs.sbom-standard }} --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
-          ls -l ${{ env.CXONE_OUTPATH }}
 
     - name: SBOM Report Attach as Artifact
       if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
