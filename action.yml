@@ -118,6 +118,14 @@ runs:
       shell: bash
       run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
+    - name: Test Always
+      if: ${{ always() }}
+      shell: bash
+      run: |
+        echo ALWAYS!!!!
+        ls -l ${{ env.CXONE_OUTPATH }}
+        
+
     - name: Collect Output Identifiers
       id: get-identifiers
       if: ${{ always() && hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json') )}}
