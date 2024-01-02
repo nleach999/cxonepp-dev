@@ -62,7 +62,7 @@ inputs:
     description: If true, attaches the Sarif file to the workflow as an artifact.
 
   additional-report-params:
-    default: ''
+    default: --filter state='TO_VERIFY;PROPOSED_NOT_EXPLOITABLE;CONFIRMED;URGENT;NOT_IGNORED'
     description: Additional parameters used when compiling reports.
 
   attach-sbom-file:
