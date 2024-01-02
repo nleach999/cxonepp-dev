@@ -116,17 +116,18 @@ runs:
       id: get-identifiers
       shell: bash
       run: |
-        ls -l ${{ env.CXONE_OUTPATH }}
-        cat ${{ env.CXONE_OUTPATH }}/cx_result.json
-        jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json
-        jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json
-        
-        echo "SCAN_ID=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_ENV"
-        echo "PROJECT_ID=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_ENV"
-        echo "scan-id=${{ env.SCAN_ID }}" >> "$GITHUB_OUTPUT"
-        echo "project-id=${{ env.PROJECT_ID }}" >> "$GITHUB_OUTPUT"
-        echo ${{ env.SCAN_ID}}
-        echo ${{ env.PROJECT_ID}}
+        SCAN_ID=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)
+        PROJECT_ID=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)
+        echo "SCAN_ID=$SCAN_ID" >> "$GITHUB_ENV"
+        echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+        echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
+        echo "project-id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+        echo env scanid: ${{ env.SCAN_ID}}
+        echo env projectid: ${{ env.PROJECT_ID}}
+        echo local scanid: $SCAN_ID
+        echo local projectid: $PROJECT_ID
+        cat "$GITHUB_OUTPUT"
+        cat "$GITHUB_ENV"
 
 
 
