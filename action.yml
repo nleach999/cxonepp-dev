@@ -109,6 +109,8 @@ runs:
         ${{ env.DOCKER_RUN }} --entrypoint=ls ${{ inputs.container-image}} -l /sandbox
         ${{ env.DOCKER_RUN }} --entrypoint=whoami ${{ inputs.container-image}}
         ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami)'
+        ${{ env.DOCKER_RUN }} --entrypoint=touch ${{ inputs.container-image}} /sandbox/input/shouldnotwork.txt
+        ls -l
 
     - name: Show Versions
       if: ${{ inputs.show-versions == 'true' }}
