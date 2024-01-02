@@ -131,6 +131,16 @@ runs:
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} --version | cat -v | sed -E 's/.*(CxSCA Resolver.[0-9.]+)\^M$/\1/g'
         echo CxOne CLI $(${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone version)
 
+    - name: Container Validation
+      shell: bash
+      run: |
+        getent passwd $(whoami)
+        getent group $(whoami)
+        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c "getent passwd $(whoami)"
+        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c "getent group $(whoami)"
+        exit 1
+
+
     - name: Execute Scan
       shell: bash
       run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
