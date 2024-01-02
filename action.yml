@@ -166,7 +166,6 @@ runs:
         name: cx_result.sarif
         path: ${{ env.CXONE_OUTPATH }}/cx_result.sarif
 
-
     - name: Sarif Report Upload on Push
       if: ${{ env.SCAN_ID != '' && github.event_name == 'push' && inputs.upload-sarif-file == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
@@ -174,7 +173,6 @@ runs:
         sarif_file: cx_result.sarif
         category: Checkmarx
       
-
     - name: SBOM Report Generation
       if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
       shell: bash
