@@ -151,7 +151,7 @@ runs:
         set +e
         RESULT=$( ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/input/write')
         echo returned code $RESULT
-        [ $RESULT -eq 0 ] && echo WRITE WAS SUCCESSFUL ON INPUT, THE INPUT SHOULD BE MOUNTED READ-ONLY ; exit 1 || :
+        [ $RESULT -eq 0 ] && $(echo WRITE WAS SUCCESSFUL ON INPUT, THE INPUT SHOULD BE MOUNTED READ-ONLY && exit 1) || :
 
 
     - name: Execute Scan
