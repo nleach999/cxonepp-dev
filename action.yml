@@ -36,6 +36,10 @@ inputs:
     default: 'cxonepp-gh-action'
     description: The agent name to use when performing CxOne CLI commands
 
+  cx-cli-additional-params:
+    default: ''
+    description: Additional parameters to pass to the CxOne CLI (proxy settings, etc) for all CxOne CLI invocations.
+
   container-image:
     required: true
     description: The container tag that was made with the cx-supply-chain-toolkit.
@@ -97,7 +101,7 @@ runs:
       run: |
         [ "${{ inputs.cx-cli-debug }}" == "true" ] && CXONECLI_DEBUG_FLAG='--debug' || :
         echo "DOCKER_RUN=${{ inputs.container-run-command }} ${{ inputs.container-run-command-params }}" >> "$GITHUB_ENV"
-        echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
+        echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG ${{ inputs.cx-cli-additional-params }} --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
         echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format summaryJSON" >> "$GITHUB_ENV"
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
         echo "CXONE_CLI_REPORT_PARAMS=${{ inputs.additional-report-params }} --output-path /sandbox/output" >> "$GITHUB_ENV"
@@ -153,27 +157,37 @@ runs:
       shell: bash
       run: |
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} --report-format sarif --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
-        ls -l ${{ env.CXONE_OUTPATH }}
+        cp ${{ env.CXONE_OUTPATH }}/cx_result.sarif ${GITHUB_WORKSPACE}
 
-    # - name: Sarif Report Upload on Push
-    #   if: ${{ env.SCAN_ID != '' && github.event_name == 'push' && inputs.upload-sarif-file == 'true' }}
-    #   shell: bash
-    #   run: |
-    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
-
-    # - name: Sarif Report Upload Attach as Artifact
-    #   if: ${{ env.SCAN_ID != '' && inputs.attach-sarif-file == 'true' }}
-    #   shell: bash
-    #   run: |
-    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+    - name: Sarif Report Attach as Artifact
+      if: ${{ env.SCAN_ID != '' && inputs.attach-sarif-file == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: cx_result.sarif
+        path: ${{ env.CXONE_OUTPATH }}/cx_result.sarif
 
 
-    # - name: SBOM Report Generation
+    - name: Sarif Report Upload on Push
+      if: ${{ env.SCAN_ID != '' && github.event_name == 'push' && inputs.upload-sarif-file == 'true' }}
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: cx_result.sarif
+        category: Checkmarx
+      
+
+    - name: SBOM Report Generation
+      if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
+      shell: bash
+      run: |
+          ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} --report-format SBOM --report-sbom-format ${{ inputs.sbom-standard }} --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+          ls -l ${{ env.CXONE_OUTPATH }}
+
+    # - name: SBOM Report Attach as Artifact
     #   if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
-    #   shell: bash
-    #   run: |
-    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
-
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: cx_result.sarif
+    #     path: ${{ env.CXONE_OUTPATH }}/cx_result.sarif
 
 
 branding:
