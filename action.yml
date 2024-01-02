@@ -148,13 +148,10 @@ runs:
         [ -f "${{ env.CXONE_OUTPATH }}/write" ] && rm "${{ env.CXONE_OUTPATH }}/write" || exit 1
 
         echo TESTING WRITE DENIED ON INPUT
-        ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/input/write'
-        echo returned code $?
-        ls -l
-
-
-        exit 15
-
+        set +e
+        RESULT=$( ${{ env.DOCKER_RUN }} --entrypoint /bin/bsh ${{ inputs.container-image}} -c 'touch /sandbox/input/write')
+        echo returned code $RESULT
+        [ $RESULT -eq 0 ] && echo WRITE WAS SUCCESSFUL ON INPUT, THE INPUT SHOULD BE MOUNTED READ-ONLY ; exit 1 || :
 
 
     - name: Execute Scan
