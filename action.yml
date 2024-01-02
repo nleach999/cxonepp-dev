@@ -123,7 +123,7 @@ runs:
       if: ${{ always() }}
       shell: bash
       run: |
-      if [ -f "${{ env.CXONE_OUTPATH }}/cx_result.json" ]; then
+        if [ -f "${{ env.CXONE_OUTPATH }}/cx_result.json" ]; then
           SCAN_ID=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)
           PROJECT_ID=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)
           echo "SCAN_ID=$SCAN_ID" >> "$GITHUB_ENV"
