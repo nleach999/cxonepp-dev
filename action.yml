@@ -124,7 +124,7 @@ runs:
         echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
 
     - name: PR Decorations
-      if: ${{ github.event_name == 'pull_request' && ${{ env.SCAN_ID != "" }} }}
+      if: ${{ github.event_name == 'pull_request' && env.SCAN_ID != "" }}
       shell: bash
       run: |
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}"
