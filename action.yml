@@ -62,7 +62,7 @@ inputs:
     default: 'docker run'
     description: The command used to execute the container.
   container-run-command-params:
-    default: "-t --rm -v ${GITHUB_WORKSPACE}:/sandbox/input -v $(realpath ${GITHUB_WORKSPACE}/../output):/sandbox/output"
+    default: "-t --rm -v ${GITHUB_WORKSPACE}:/sandbox/input:ro -v $(realpath ${GITHUB_WORKSPACE}/../output):/sandbox/output"
     description: The command used to execute the container.
 
 outputs:
@@ -108,7 +108,7 @@ runs:
         ${{ env.DOCKER_RUN }} --entrypoint=pwd ${{ inputs.container-image}}
         ${{ env.DOCKER_RUN }} --entrypoint=ls ${{ inputs.container-image}} -l /sandbox
         ${{ env.DOCKER_RUN }} --entrypoint=whoami ${{ inputs.container-image}}
-        ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami) ; getent group $(whoami)'
+        ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami)'
 
     - name: Show Versions
       if: ${{ inputs.show-versions == 'true' }}
