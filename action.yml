@@ -68,7 +68,7 @@ inputs:
 outputs:
   scan-id:
     description: The ID of the scan executed
-    value: ${{ steps.identifiers.outputs.scan-id}}
+    value: ${{ steps.get-identifiers.outputs.scan-id}}
 
   project-id:
     description: The ID of the project where the scan was executed
@@ -120,14 +120,8 @@ runs:
         PROJECT_ID=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)
         echo "SCAN_ID=$SCAN_ID" >> "$GITHUB_ENV"
         echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
-        echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
         echo "project-id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
-        echo env scanid: ${{ env.SCAN_ID}}
-        echo env projectid: ${{ env.PROJECT_ID}}
-        echo local scanid: $SCAN_ID
-        echo local projectid: $PROJECT_ID
-        cat "$GITHUB_OUTPUT"
-        cat "$GITHUB_ENV"
+        echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
 
 
 
