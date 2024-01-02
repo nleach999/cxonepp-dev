@@ -88,7 +88,6 @@ runs:
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
         mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
         chmod go+w $(realpath ${GITHUB_WORKSPACE}/../output)
-        ls -l ..
 
     - name: Container Registry Login
       uses: docker/login-action@v2
@@ -102,16 +101,6 @@ runs:
       shell: bash
       run: docker pull ${{ inputs.container-image}} > /dev/null
 
-    - name: Validate
-      shell: bash
-      run: |
-        ${{ env.DOCKER_RUN }} --entrypoint=pwd ${{ inputs.container-image}}
-        ${{ env.DOCKER_RUN }} --entrypoint=ls ${{ inputs.container-image}} -l /sandbox
-        ${{ env.DOCKER_RUN }} --entrypoint=whoami ${{ inputs.container-image}}
-        ${{ env.DOCKER_RUN }} --entrypoint=/bin/bsh ${{ inputs.container-image}} -c 'getent passwd $(whoami)'
-        ${{ env.DOCKER_RUN }} --entrypoint=touch ${{ inputs.container-image}} /sandbox/input/shouldnotwork.txt
-        ls -l
-
     - name: Show Versions
       if: ${{ inputs.show-versions == 'true' }}
       shell: bash
@@ -119,17 +108,17 @@ runs:
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} --version | cat -v | sed -E 's/.*(CxSCA Resolver.[0-9.]+)\^M$/\1/g'
         echo CxOne CLI $(${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone version)
 
-    # - name: Execute Scan
-    #   shell: bash
-    #   run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+    - name: Execute Scan
+      shell: bash
+      run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
-    # - name: Collect Output Identifiers
-    #   id: get-identifiers
-    #   shell: bash
-    #   run: |
-    #     ls -l ${{ env.CXONE_OUTPATH }}
-    #     echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
-    #     echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
+    - name: Collect Output Identifiers
+      id: get-identifiers
+      shell: bash
+      run: |
+        ls -l ${{ env.CXONE_OUTPATH }}
+        echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
+        echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
 
 
 
