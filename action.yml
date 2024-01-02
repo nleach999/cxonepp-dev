@@ -118,30 +118,19 @@ runs:
       shell: bash
       run: ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone scan create ${{ env.CXONE_CLI_SCAN_PARAMS }} ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
-    - name: Test Always
+    - name: Collect Output Identifiers
+      id: get-identifiers
       if: ${{ always() }}
       shell: bash
       run: |
-        echo ALWAYS!!!!
-        ls -l ${{ env.CXONE_OUTPATH }}
-
-    - name: Test HashFiles
-      if: ${{ hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json')) != '' }}
-      shell: bash
-      run: |
-        echo FILES HASHED
-
-    - name: Collect Output Identifiers
-      id: get-identifiers
-      if: ${{ always() && hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json')) != '' }}
-      shell: bash
-      run: |
-        SCAN_ID=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)
-        PROJECT_ID=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)
-        echo "SCAN_ID=$SCAN_ID" >> "$GITHUB_ENV"
-        echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
-        echo "project-id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
-        echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
+      if [ -f "${{ env.CXONE_OUTPATH }}/cx_result.json" ]; then
+          SCAN_ID=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)
+          PROJECT_ID=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)
+          echo "SCAN_ID=$SCAN_ID" >> "$GITHUB_ENV"
+          echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+          echo "project-id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+          echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: PR Decorations
       if: ${{ always() && github.event_name == 'pull_request' && env.SCAN_ID != '' }}
