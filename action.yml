@@ -62,8 +62,12 @@ inputs:
     description: If true, attaches the Sarif file to the workflow as an artifact.
 
   additional-report-params:
-    default: --filter state='TO_VERIFY;PROPOSED_NOT_EXPLOITABLE;CONFIRMED;URGENT;NOT_IGNORED'
-    description: Additional parameters used when compiling reports.
+    default: ''
+    description: Additional parameters used when compiling reports, excluding the --filter option.
+
+  report-filters:
+    default: --filter 'state=TO_VERIFY;PROPOSED_NOT_EXPLOITABLE;CONFIRMED;URGENT;NOT_IGNORED'
+    description: The criteria that selects what to include in any report results.
 
   attach-sbom-file:
     default: false
@@ -156,7 +160,7 @@ runs:
       if: ${{ env.SCAN_ID != '' && ( (inputs.upload-sarif-file == 'true' && github.event_name == 'push') || inputs.attach-sarif-file == 'true' ) }}
       shell: bash
       run: |
-        ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} --report-format sarif --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+        ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} ${{ inputs.report-filters }} --report-format sarif --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
         cp ${{ env.CXONE_OUTPATH }}/cx_result.sarif ${GITHUB_WORKSPACE}
 
     - name: Sarif Report Attach as Artifact
@@ -177,7 +181,7 @@ runs:
       if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
       shell: bash
       run: |
-          ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} --report-format SBOM --report-sbom-format ${{ inputs.sbom-standard }} --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+          ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} ${{ inputs.report-filters }} --report-format SBOM --report-sbom-format ${{ inputs.sbom-standard }} --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
     - name: SBOM Report Attach as Artifact
       if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
