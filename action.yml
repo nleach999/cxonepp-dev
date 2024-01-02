@@ -117,6 +117,7 @@ runs:
       shell: bash
       run: |
         ls -l ${{ env.CXONE_OUTPATH }}
+        cat ${{ env.CXONE_OUTPATH }}/cx_result.json
         echo "scan-id=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
         echo "project-id=$(jq -Mr .ProjectID ${{ env.CXONE_OUTPATH }}/cx_result.json)" >> "$GITHUB_OUTPUT"
 
