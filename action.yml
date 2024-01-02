@@ -52,7 +52,10 @@ inputs:
 
   upload-sarif-file:
     default: true
-    description: Uploads the Sarif file to create entries on the GitHub security tab during push events. 
+    description: If true, uploads the Sarif file to create entries on the GitHub security tab during push events. 
+  attach-sarif-file:
+    default: false
+    description: If true, attaches the Sarif file to the workflow as an artifact. 
 
   show-versions:
     default: true
@@ -127,7 +130,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && env.SCAN_ID != '' }}
       shell: bash
       run: |
-        ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}"
+        ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
 
 
