@@ -55,10 +55,18 @@ inputs:
     description: If true, uploads the Sarif file to create entries on the GitHub security tab during push events. 
   attach-sarif-file:
     default: false
-    description: If true, attaches the Sarif file to the workflow as an artifact. 
+    description: If true, attaches the Sarif file to the workflow as an artifact.
+
+  additional-report-params:
+    default: ''
+    description: Additional parameters used when compiling reports.
+
   attach-sbom-file:
     default: false
     description: If true, attaches the SBOM file to the workflow as an artifact. 
+  sbom-standard:
+    default: CycloneDxJson
+    description: The SBOM standard format used when generating the SBOM file. 
 
   show-versions:
     default: true
@@ -92,6 +100,7 @@ runs:
         echo "CXONE_CLI_GLOBAL_PARAMS=$CXONECLI_DEBUG_FLAG --agent \"${{ inputs.cx-cli-agent }}\" --client-id \"${{ inputs.cx-client-id }}\" --client-secret \"${{ inputs.cx-client-secret }}\" --tenant \"${{ inputs.cx-tenant }}\" --base-uri ${{ inputs.base-uri }} --base-auth-uri ${{ inputs.base-auth-uri }}" >> "$GITHUB_ENV"
         echo "CXONE_CLI_SCAN_PARAMS=${{ inputs.additional-scan-params }} --project-name \"${{ inputs.project-name }}\" --branch \"${{ github.ref_name }}\" --sca-resolver /sandbox/resolver/ScaResolver --output-path /sandbox/output -s /sandbox/input_sandbox --report-format summaryJSON" >> "$GITHUB_ENV"
         echo "CXONE_OUTPATH=$(realpath ${GITHUB_WORKSPACE}/../output)" >> "$GITHUB_ENV"
+        echo "CXONE_CLI_REPORT_PARAMS=${{ inputs.additional-report-params }} --output-path /sandbox/output" >> "$GITHUB_ENV"
         mkdir $(realpath ${GITHUB_WORKSPACE}/../output)
         chmod go+w $(realpath ${GITHUB_WORKSPACE}/../output)
 
@@ -130,6 +139,7 @@ runs:
           echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
           echo "project-id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
           echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
+          rm ${{ env.CXONE_OUTPATH }}/cx_result.json
         fi
 
     - name: PR Decorations
@@ -138,17 +148,12 @@ runs:
       run: |
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
-    # - name: Sarif Report Generation
-    #   if: ${{ env.SCAN_ID != '' && ( inputs.upload-sarif-file == 'true' || inputs.attach-sarif-file == 'true' ) }}
-    #   shell: bash
-    #   run: |
-    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
-
-    # - name: SBOM Report Generation
-    #   if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
-    #   shell: bash
-    #   run: |
-    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+    - name: Sarif Report Generation
+      if: ${{ env.SCAN_ID != '' && ( (inputs.upload-sarif-file == 'true' && github.event_name == 'push') || inputs.attach-sarif-file == 'true' ) }}
+      shell: bash
+      run: |
+        ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone results show ${{ env.CXONE_CLI_REPORT_PARAMS }} --report-format sarif --scan-id "${{ env.SCAN_ID }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
+        ls -l ${{ env.CXONE_OUTPATH }}
 
     # - name: Sarif Report Upload on Push
     #   if: ${{ env.SCAN_ID != '' && github.event_name == 'push' && inputs.upload-sarif-file == 'true' }}
@@ -163,6 +168,11 @@ runs:
     #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
 
+    # - name: SBOM Report Generation
+    #   if: ${{ env.SCAN_ID != '' && inputs.attach-sbom-file == 'true' }}
+    #   shell: bash
+    #   run: |
+    #     ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone utils pr github --scan-id "${{ env.SCAN_ID }}" --namespace "${{ github.repository_owner }}" --repo-name "${{ github.event.repository.name }}" --pr-number "${{ github.event.number }}" --token "${{ github.token }}" ${{ env.CXONE_CLI_GLOBAL_PARAMS }}
 
 
 
