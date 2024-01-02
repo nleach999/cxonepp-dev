@@ -126,14 +126,14 @@ runs:
         ls -l ${{ env.CXONE_OUTPATH }}
 
     - name: Test HashFiles
-      if: ${{ hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json') != '' }}
+      if: ${{ hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json')) != '' }}
       shell: bash
       run: |
         echo FILES HASHED
 
     - name: Collect Output Identifiers
       id: get-identifiers
-      if: ${{ always() && hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json') != '' ) }}
+      if: ${{ always() && hashFiles(format('{0}/{1}', env.CXONE_OUTPATH, 'cx_result.json')) != '' ) }}
       shell: bash
       run: |
         SCAN_ID=$(jq -Mr .ScanID ${{ env.CXONE_OUTPATH }}/cx_result.json)
