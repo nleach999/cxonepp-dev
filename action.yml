@@ -95,10 +95,22 @@ outputs:
   project-id:
     description: The ID of the project where the scan was executed
     value: ${{ steps.get-identifiers.outputs.project-id}}
+  
+  project-deeplink:
+    description: A link directly to the project overview for the project where the scan was executed.
+    value: ${{ steps.get-identifiers.outputs.project-deeplink }}
 
 runs:
   using: 'composite'
   steps:
+
+    - name: Container Registry Login
+      uses: docker/login-action@v2
+      if: inputs.docker-login-username != '' && inputs.docker-login-password != ''
+      with:
+        registry: ${{ inputs.docker-login-registry }}
+        username: ${{ inputs.docker-login-username }}
+        password: ${{ inputs.docker-login-password }}
 
     - name: Setup working environment
       shell: bash
@@ -170,6 +182,7 @@ runs:
           echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
           echo "project-id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
           echo "scan-id=$SCAN_ID" >> "$GITHUB_OUTPUT"
+          echo "project-deeplink=${{ inputs.base-uri }}/projects/$PROJECT_ID/overview?branch=${{ github.head_ref }}" >> "$GITHUB_OUTPUT"
           rm ${{ env.CXONE_OUTPATH }}/cx_result.json
         fi
 
