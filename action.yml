@@ -6,35 +6,35 @@ inputs:
   base-uri:
     required: false
     default: https://ast.checkmarx.net
-    description: 'Provide the CxOne portal URL'
+    description: The CxOne server base URL, default is the US1 environment. https://checkmarx.com/resource/documents/en/34965-68630-configure.html#UUID-494287f8-3019-2542-c111-cb147c286bac_id_ASTCLIConfigurationEnvironmentVariables-CLIConfigurationParameters
   base-auth-uri:
     required: false
     default: https://iam.checkmarx.net
-    description: 'Provide the CxOne base auth url'
+    description: The CxOne server base URL, default is the US1 environment. https://checkmarx.com/resource/documents/en/34965-68630-configure.html#UUID-494287f8-3019-2542-c111-cb147c286bac_id_ASTCLIConfigurationEnvironmentVariables-CLIConfigurationParameters
   cx-tenant:
     required: true
-    description: 'Provide the Tenant for CxOne portal URL'
+    description: The CxOne tenant identifier.
   cx-client-id:
     required: true
-    description: 'OAuth Client ID for API access'
+    description: OAuth Client ID for API access
   cx-client-secret:
     required: true
-    description: 'OAuth client secret key for API access'
+    description: OAuth client secret key for API access
   project-name:
     required: false
     default: ${{ github.repository }}
-    description: 'Scan project name'
+    description: Scan project name
   additional-scan-params:
     required: false
     default: ''
-    description: 'Additional parameters passed to the CxOne CLI after scan create'
+    description: Additional parameters passed to the CxOne CLI after "scan create"
 
   cx-cli-debug:
     default: false
-    description: Turn on debugging for the CxOne CLI
+    description: Turn on debugging for the CxOne CLI and the composite action.
   cx-cli-agent:
     default: 'cxonepp-gh-action'
-    description: The agent name to use when performing CxOne CLI commands
+    description: The agent name to use when performing CxOne CLI commands.  This value will show as the "Scan Origin" of each scan.
 
   cx-cli-additional-params:
     default: ''
@@ -59,11 +59,11 @@ inputs:
     description: If true, uploads the Sarif file to create entries on the GitHub security tab during push events. 
   attach-sarif-file:
     default: false
-    description: If true, attaches the Sarif file to the workflow as an artifact.
+    description: If true, attaches the Sarif file to the workflow as an artifact for push or pull request events.
 
   additional-report-params:
     default: ''
-    description: Additional parameters used when compiling reports, excluding the --filter option.
+    description: Additional parameters used when compiling reports. Do not add the --filter option; use the "report-filters" input parameter to set filter options.
 
   report-filters:
     default: --filter "state=TO_VERIFY;PROPOSED_NOT_EXPLOITABLE;CONFIRMED;URGENT"
@@ -131,7 +131,7 @@ runs:
         ${{ env.DOCKER_RUN }} ${{ inputs.container-image}} --version | cat -v | sed -E 's/.*(CxSCA Resolver.[0-9.]+)\^M$/\1/g'
         echo CxOne CLI $(${{ env.DOCKER_RUN }} ${{ inputs.container-image}} cxone version)
 
-    - name: Container Validation
+    - name: Container Debug Validation
       if: ${{ inputs.cx-cli-debug == 'true' }}
       shell: bash
       run: |
